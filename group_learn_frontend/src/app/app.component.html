@@ -1,0 +1,10 @@
+<nav *ngIf="!authService.isLoggedIn()">
+  <a [routerLink]="'/login'">Login</a>
+  <a [routerLink]="'/register'">Register</a>
+</nav>
+
+<nav *ngIf="authService.isLoggedIn()">
+  <a [routerLink]="'/home'">Home</a>
+</nav>
+
+<router-outlet></router-outlet>

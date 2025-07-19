@@ -1,0 +1,11 @@
+<h2>Register</h2>
+
+<form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+  <input type="text" [(ngModel)]="username" name="username" required />
+  <input type="email" [(ngModel)]="email" name="email" required />
+  <input type="password" [(ngModel)]="password" name="password" required />
+  <button type="submit" [disabled]="!username || !email || !password">Register</button>
+  <p class="error" *ngIf="error">{{ error }}</p>
+</form>
+
+<p>Login here <a [routerLink]="'/login'">Login</a></p>
