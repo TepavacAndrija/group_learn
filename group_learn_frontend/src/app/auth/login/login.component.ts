@@ -26,7 +26,8 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        this.error = 'Invalid credentials';
+        this.error = 'Invalid credentials (login.component) ';
+        console.error('Login error:', err);
       }
     });
   }

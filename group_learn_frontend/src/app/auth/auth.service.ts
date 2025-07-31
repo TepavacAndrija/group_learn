@@ -15,7 +15,7 @@ export class AuthService {
   }
 
   login(loginData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, loginData);
+    return this.http.post<{ token : string }>(`${this.apiUrl}/login`, loginData);
   }
 
   setToken(token: string) {
