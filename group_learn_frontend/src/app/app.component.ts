@@ -14,6 +14,10 @@ import { CommonModule } from '@angular/common';
 export class AppComponent {
   constructor(public authService: AuthService, private router: Router) {}
 
+  ngOnInit(){
+    //this.logout();
+    //just for testing jwt tokens
+  }
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);

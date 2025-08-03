@@ -22,7 +22,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register (@RequestBody RegisterRequestDTO request) {
         authService.register(request);
-        return ResponseEntity.ok("Registred succesfully");
+        return ResponseEntity.ok(request);
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
