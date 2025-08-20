@@ -12,6 +12,9 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, RouterOutlet,RouterLink]
 })
 export class AppComponent {
+    title = 'group_learn_frontend';
+
+  
   constructor(public authService: AuthService, private router: Router) {}
 
   ngOnInit(){

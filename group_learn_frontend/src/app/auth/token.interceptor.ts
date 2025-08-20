@@ -10,6 +10,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
+    console.log("intercepting request="+req.url+" and token is="+token);
     if (req.headers.get('skip')) 
       return next.handle(req);
     if (token) {

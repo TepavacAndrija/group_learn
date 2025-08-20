@@ -31,7 +31,7 @@ public class RoomController {
         String token = authHeader.substring(7);
         String id = getIdFromToken(token);
         return roomService.createRoom(room, id);
-        //add check if duplicate to all post mappings, questionpack too
+        //add check if duplicate to all post mappings, questionpack tooc
     }
 
     @PostMapping("/join")

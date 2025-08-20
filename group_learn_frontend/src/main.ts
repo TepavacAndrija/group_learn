@@ -40,19 +40,18 @@ bootstrapApplication(AppComponent, {
         loadComponent: () => import('./app/home/home.component').then(c => c.HomeComponent),
         canActivate: [authGuard]
       },
-      //KASNIJE OSTALE KOMPONENTE
-      // {
-      //   path: 'packs',
-      //   loadComponent: () => import('./app/packs/packs.component').then(c => c.PacksComponent)
-      // },
-      // {
-      //   path: 'rooms',
-      //   loadComponent: () => import('./app/rooms/rooms.component').then(c => c.RoomsComponent)
-      // },
-      // {
-      //   path: 'game',
-      //   loadComponent: () => import('./app/game/game.component').then(c => c.GameComponent)
-      // },
+      {
+         path: 'packs',
+         loadComponent: () => import('./app/packs/packs.component').then(c => c.PacksComponent)
+       },
+       {
+         path: 'rooms',
+         loadComponent: () => import('./app/rooms/rooms.component').then(c => c.RoomsComponent)
+       },
+       {
+         path: 'game',
+         loadComponent: () => import('./app/game/game.component').then(c => c.GameComponent)
+       },
       {
         path: '',
         redirectTo: '/login',

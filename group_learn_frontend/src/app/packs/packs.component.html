@@ -1,0 +1,22 @@
+<h1>Choose a pack</h1>
+
+<div *ngIf="packs.length === 0" class="empty">
+    <p>No packs</p>
+</div>
+
+<div *ngFor="let pack of packs" class="pack-card">
+    <h3>{{ pack.name }}</h3>
+
+    <div class="questions-preview">
+    <strong>Questions:</strong>
+    <ul>
+      <li *ngFor="let question of pack.questions">
+        {{ question.text }}
+      </li>
+    </ul>
+  </div>
+
+  <button (click)="createRoom(pack.id,pack.name)">
+    Create Room with this Pack
+  </button>
+</div>

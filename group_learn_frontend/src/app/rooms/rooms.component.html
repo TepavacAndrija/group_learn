@@ -1,0 +1,20 @@
+<h2>Rooms</h2>
+
+<div class="create-room" *ngIf="packId">
+  <h3>Create a New Room</h3>
+  <p>Pack: <strong>{{ packName }}</strong></p>
+  <button (click)="createRoom()">Create Room</button>
+</div>
+
+<h3>Active Rooms</h3>
+<div *ngIf="rooms.length === 0" class="empty">
+  <p>No rooms available. Create one!</p>
+</div>
+
+<div *ngFor="let room of rooms" class="room-card">
+  <h4>{{ room.name }}</h4>
+  <p>Pack: {{ room.packName }}</p>
+  <p>Players: {{ room.currentPlayers }} / {{ room.maxPlayers }}</p>
+  <p><strong>Code:</strong> {{ room.code }}</p>
+  <button (click)="joinRoom(room.code)">Join Room</button>
+</div>

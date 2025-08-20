@@ -5,6 +5,9 @@
 
 <nav *ngIf="authService.isLoggedIn()">
   <a [routerLink]="'/home'">Home</a>
+  <a [routerLink]="'/packs'">Packs</a>
+  <a [routerLink]="'/rooms'">Rooms</a>
+  <a [routerLink]="'/game'">Game</a>
 </nav>
 
 <router-outlet></router-outlet>
