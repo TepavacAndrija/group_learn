@@ -1,0 +1,38 @@
+<div *ngIf="currentQuestion" class="game-container">
+  <h2>{{ pack?.name }}</h2>
+  <p>Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}</p>
+
+  <div class="question">
+    <h3>{{ currentQuestion.text }}</h3>
+  </div>
+
+
+  <div *ngIf="isAnswerer" class="answer-section">
+    <h4>Your Answer</h4>
+    <textarea [(ngModel)]="myAnswer" placeholder="Write your answer here..."></textarea>
+    <button (click)="submitAnswer()">Submit Answer</button>
+  </div>
+
+ 
+  <div *ngIf="!isAnswerer" class="correction-section">
+    <h4>Correct the Answer</h4>
+    <textarea [(ngModel)]="myAnswer" placeholder="Suggest an improvement..."></textarea>
+    <button (click)="addCorrection()">Add Suggestion</button>
+
+    <div *ngIf="corrections.length > 0" class="suggestions">
+      <h5>Suggestions:</h5>
+      <ul>
+        <li *ngFor="let corr of corrections">{{ corr }}</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <div class="next-button">
+    <button (click)="nextQuestion()">Next Question</button>
+  </div>
+</div>
+
+<div *ngIf="!currentQuestion" class="loading">
+  <p>Loading game...</p>
+</div>

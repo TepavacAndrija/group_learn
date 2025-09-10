@@ -55,6 +55,32 @@ public class RoomService {
     public List<Room> getAllRooms(){
         return roomRepository.findAll();
     }
-    
 
+    public Room getRoomById(String id) {
+        return roomRepository.findById(id).orElseThrow();
+    }
+
+    public Room startGame(String roomId) {
+        Room room = roomRepository.findById(roomId).orElseThrow();
+        room.setGameActive(true);
+        room.setCurrentQuestionIndex(0);
+        room.setCurrentAnswererId(room.getPlayerIds().get(0));
+        return roomRepository.save(room);
+    }
+
+    public Room nextQuestion(String roomId) {
+        Room room = roomRepository.findById(roomId).orElseThrow();
+        List<String> players = room.getPlayerIds();
+        int currentIndex = players.indexOf(room.getCurrentAnswererId());
+        int nextIndex = (currentIndex + 1) % players.size();
+
+        room.setCurrentQuestionIndex(room.getCurrentQuestionIndex() + 1);
+        room.setCurrentAnswererId(players.get(nextIndex));
+        return roomRepository.save(room);
+    }
+
+    public boolean isAnswerer(String roomId, String playerId) {
+        Room room = roomRepository.findById(roomId).orElseThrow();
+        return room.getCurrentAnswererId().equals(playerId);
+    }
 }

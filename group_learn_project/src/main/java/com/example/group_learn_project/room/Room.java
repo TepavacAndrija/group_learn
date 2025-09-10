@@ -20,5 +20,8 @@ public class Room {
     private Boolean isActive = true;
     private String hostId;
     private List<String> playerIds = new ArrayList<>();
+    private Integer currentQuestionIndex = 0;
+    private String currentAnswererId;
+    private Boolean gameActive = false;
 
 }
