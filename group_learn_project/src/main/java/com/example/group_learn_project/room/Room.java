@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Data
 @Document(collection = "rooms")
 public class Room {
@@ -23,5 +24,6 @@ public class Room {
     private Integer currentQuestionIndex = 0;
     private String currentAnswererId;
     private Boolean gameActive = false;
+    private RoomStatus status = RoomStatus.WAITING;
 
 }

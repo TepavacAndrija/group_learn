@@ -9,4 +9,5 @@ import java.util.List;
 public interface RoomRepository extends MongoRepository<Room,String> {
     List<Room> findAll();
     Room findByCode(String code);
+    List<Room> findByStatus(RoomStatus status);
 }

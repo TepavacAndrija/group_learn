@@ -2,12 +2,13 @@ package com.example.group_learn_project.room;
 
 import com.example.group_learn_project.questionpack.QuestionPack;
 import com.example.group_learn_project.questionpack.QuestionPackService;
+import com.example.group_learn_project.user.User;
+import com.example.group_learn_project.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RoomService {
@@ -16,6 +17,10 @@ public class RoomService {
     private RoomRepository roomRepository;
     @Autowired
     private QuestionPackService questionPackService;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private UserRepository userRepository;
 
     public Room createRoom(Room room, String hostId){
         room.setHostId(hostId);
@@ -49,11 +54,21 @@ public class RoomService {
 
         room.getPlayerIds().add(playerId);
         room.setCurrentPlayers(room.getCurrentPlayers() + 1);
-        return roomRepository.save(room);
+        Room updated = roomRepository.save(room);
+
+        RoomUpdateDTO dto = new RoomUpdateDTO(updated);
+        messagingTemplate.convertAndSend("/topic/rooms", dto);
+
+
+        return updated;
     }
 
     public List<Room> getAllRooms(){
         return roomRepository.findAll();
+    }
+
+    public List<Room> getActiveRooms() {
+        return roomRepository.findByStatus(RoomStatus.WAITING);
     }
 
     public Room getRoomById(String id) {
@@ -82,5 +97,9 @@ public class RoomService {
     public boolean isAnswerer(String roomId, String playerId) {
         Room room = roomRepository.findById(roomId).orElseThrow();
         return room.getCurrentAnswererId().equals(playerId);
+    }
+
+    public Room updateRoom(Room room) {
+        return roomRepository.save(room);
     }
 }

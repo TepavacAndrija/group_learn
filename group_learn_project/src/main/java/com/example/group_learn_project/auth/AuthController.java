@@ -35,7 +35,7 @@ public class AuthController {
            String token = authService.login(request.getEmail(), request.getPassword());
            System.out.println("Login successful for " + request.getEmail());
            System.out.println("JWT Token generated (first 50 chars): " + token.substring(0, Math.min(50, token.length())) + "...");
-           return ResponseEntity.ok(new LoginResponseDTO(token));
+           return ResponseEntity.ok(new LoginResponseDTO(token, request.getEmail()));
            //trebao bih napraviti dto da vraca
        }catch (AuthenticationException e){
             System.out.println("Login failed for: " + request.getEmail() + " -> " + e.getMessage());

@@ -1,69 +1,173 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import * as Stomp from '@stomp/stompjs';
+
+import SockJS from 'sockjs-client';
+interface Room {
+  id: string;
+  code: string;
+  packName: string;
+  currentPlayers: number;
+  maxPlayers: number;
+  status: 'WAITING' | 'ACTIVE' | 'FINISHED';
+}
 
 @Component({
   selector: 'app-rooms',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './rooms.component.html',
-  styleUrl: './rooms.component.scss'
+  styleUrl: './rooms.component.scss',
 })
-export class RoomsComponent {
-
+export class RoomsComponent implements OnInit, OnDestroy {
   rooms: any[] = [];
   packId = '';
   packName = '';
+  joiningRoomCode: string | null = null;
+  client: any;
 
-  constructor(private http:HttpClient, private route:ActivatedRoute, private router:Router){}
+  constructor(
+    private http: HttpClient,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
-  ngOnInit(){
+  connectWebSocket() {
 
-    this.route.queryParams.subscribe(params=>{
+    this.client = new Stomp.Client({
+      brokerURL: 'ws://localhost:8080/ws',
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      connectHeaders: {},
+      debug: (str) => {
+        console.log('STOMP: ' + str);
+      },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      onConnect: () => {
+        console.log('Connected to WebSocket');
+
+        this.client.subscribe('/topic/rooms', (message: Stomp.IMessage) => {
+          const data = JSON.parse(message.body);
+          console.log(message);
+          this.loadInitialRooms();
+        });
+
+        this.client.subscribe(
+          `/user/queue/room-joined`,
+          (message: Stomp.IMessage) => {
+            const data = JSON.parse(message.body);
+            console.log('Received room-joined message:', data);
+            if (this.joiningRoomCode && this.joiningRoomCode === data.code) {
+              this.router.navigate(['/game'], {
+                queryParams: { code: data.code },
+              });
+              this.joiningRoomCode = null;
+            }
+          }
+        );
+      },
+      onStompError: (error) => {
+        console.error('STOMP Error:', error);
+      },
+    });
+
+    this.client.activate();
+  }
+  // private handleRoomUpdate(data: any) {
+  //   // Ako je stigla cela lista soba (inicijalno učitavanje)
+  //   if (Array.isArray(data)) {
+  //     this.rooms = data.filter((room) => room.status === 'WAITING');
+  //     return;
+  //   }
+
+  //   // Ako je stigla jedna soba (update)
+  //   const roomIndex = this.rooms.findIndex((r) => r.id === data.id);
+
+  //   // Soba postoji u listi - ažuriraj je
+  //   if (roomIndex !== -1) {
+  //     // Ako soba više nije WAITING statusa, ukloni je
+  //     if (data.status !== 'WAITING') {
+  //       this.rooms = this.rooms.filter((r) => r.id !== data.id);
+  //     } else {
+  //       // Ažuriraj postojeću sobu
+  //       const updatedRooms = [...this.rooms];
+  //       updatedRooms[roomIndex] = data;
+  //       this.rooms = updatedRooms;
+  //     }
+  //   }
+  //   // Nova soba - dodaj je
+  //   else if (data.status === 'WAITING') {
+  //     this.rooms = [data, ...this.rooms];
+  //   }
+  // }
+
+  ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
       this.packName = params['packName'] || '';
       this.packId = params['packId'] || '';
     });
 
-    this.loadRooms();
+    this.loadInitialRooms();
+    this.connectWebSocket();
   }
 
-  loadRooms(){
-    this.http.get(`http://localhost:8080/api/rooms`).subscribe((data : any)=>{
-      this.rooms=data;
-    });
+  ngOnDestroy() {
+    if (this.client) {
+      this.client.deactivate();
+    }
   }
 
-  createRoom(){
-    if(!this.packId) return;
+  loadInitialRooms() {
+    this.http
+      .get<Room[]>(`http://localhost:8080/api/rooms/broadcast`)
+      .subscribe({
+        next: (data) => {
+          this.rooms = data;
+        },
+        error: (error) => {
+          console.error('Failed to load rooms:', error);
+          // Opcionalno: prikaži poruku korisniku
+        },
+      });
+  }
+
+  createRoom() {
+    if (!this.packId) return;
 
     const roomData = {
       packId: this.packId,
-      maxPlayers: 6
+      maxPlayers: 6,
+      status: 'WAITING',
     };
 
-    this.http.post('http://localhost:8080/api/rooms', roomData).subscribe({
-      next: () => {
-        this.loadRooms();
-      },
-      error : (e) => {
-        alert("failed to create room" + e);
-      }
-    });
+    this.http.post('http://localhost:8080/api/rooms', roomData).subscribe();
   }
 
   joinRoom(code: string) {
     const joinData = { code };
 
+    // 🔥 PROMENA: Čuvamo kod sobe koju korisnik pokušava da se priključi
+    this.joiningRoomCode = code;
+
     this.http.post('http://localhost:8080/api/rooms/join', joinData).subscribe({
       next: () => {
-        this.router.navigate(['/game'], { queryParams: { code } });
+        console.log('Join request sent, waiting for WebSocket confirmation...');
+        // 🔥 PROMENA: Više ne preusmeravamo odmah - čekamo WebSocket potvrdu
       },
       error: (err) => {
-        alert('Failed to join room');
-      }
+        this.joiningRoomCode = null;
+        alert('Failed to join room: ' + err.message);
+      },
     });
+  }
+
+  isConnected(): boolean {
+    return this.client && this.client.connected;
   }
 }

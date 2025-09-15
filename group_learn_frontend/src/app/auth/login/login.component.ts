@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [FormsModule, RouterLink, CommonModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   email = '';
@@ -20,16 +20,17 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
-    this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: (response) => {
-        this.authService.setToken(response.token);
-        this.router.navigate(['/home']);
-      },
-      error: (err) => {
-        this.error = 'Invalid credentials (login.component) ';
-        console.error('Login error:', err);
-      }
-    });
+    this.authService
+      .login({ email: this.email, password: this.password })
+      .subscribe({
+        next: (response) => {
+          this.authService.setToken(response.token);
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          this.error = 'Invalid credentials (login.component) ';
+          console.error('Login error:', err);
+        },
+      });
   }
-  
 }
