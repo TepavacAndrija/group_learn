@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface QuestionPackRepository extends MongoRepository<QuestionPack,String> {
     List<QuestionPack> findAll();
+    QuestionPack findById(int id);
 }

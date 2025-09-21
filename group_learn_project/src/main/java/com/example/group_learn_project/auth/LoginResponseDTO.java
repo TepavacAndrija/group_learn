@@ -5,9 +5,11 @@ import lombok.Data;
 @Data
 public class LoginResponseDTO {
     private String token;
-    private String userId;
-    public LoginResponseDTO(String token, String userId) {
+    private String email;
+    private String playerId;
+    public LoginResponseDTO(String token,String email, String playerId) {
         this.token = token;
-        this.userId = userId;
+        this.email = email;
+        this.playerId = playerId;
     }
 }

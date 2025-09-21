@@ -38,7 +38,6 @@ export class RoomsComponent implements OnInit, OnDestroy {
   ) {}
 
   connectWebSocket() {
-
     this.client = new Stomp.Client({
       brokerURL: 'ws://localhost:8080/ws',
       webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
@@ -54,7 +53,7 @@ export class RoomsComponent implements OnInit, OnDestroy {
 
         this.client.subscribe('/topic/rooms', (message: Stomp.IMessage) => {
           const data = JSON.parse(message.body);
-          console.log(message);
+          console.log('KREIRAO SI ' + message);
           this.loadInitialRooms();
         });
 
@@ -132,7 +131,6 @@ export class RoomsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Failed to load rooms:', error);
-          // Opcionalno: prikaži poruku korisniku
         },
       });
   }
@@ -142,8 +140,6 @@ export class RoomsComponent implements OnInit, OnDestroy {
 
     const roomData = {
       packId: this.packId,
-      maxPlayers: 6,
-      status: 'WAITING',
     };
 
     this.http.post('http://localhost:8080/api/rooms', roomData).subscribe();
@@ -152,13 +148,11 @@ export class RoomsComponent implements OnInit, OnDestroy {
   joinRoom(code: string) {
     const joinData = { code };
 
-    // 🔥 PROMENA: Čuvamo kod sobe koju korisnik pokušava da se priključi
     this.joiningRoomCode = code;
 
     this.http.post('http://localhost:8080/api/rooms/join', joinData).subscribe({
       next: () => {
         console.log('Join request sent, waiting for WebSocket confirmation...');
-        // 🔥 PROMENA: Više ne preusmeravamo odmah - čekamo WebSocket potvrdu
       },
       error: (err) => {
         this.joiningRoomCode = null;

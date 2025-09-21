@@ -25,6 +25,7 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.authService.setToken(response.token);
+          this.authService.setPlayerId(response.playerId);
           this.router.navigate(['/home']);
         },
         error: (err) => {

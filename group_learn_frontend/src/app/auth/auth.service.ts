@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Token } from '@angular/compiler';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth';
-
 
   private headers = new HttpHeaders({
     'Content-Type': 'application/json',
@@ -22,7 +21,9 @@ export class AuthService {
   }
 
   login(loginData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, loginData, { headers: this.headers });
+    return this.http.post(`${this.apiUrl}/login`, loginData, {
+      headers: this.headers,
+    });
   }
 
   setToken(token: string) {
@@ -31,6 +32,14 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  setPlayerId(playerId: string) {
+    localStorage.setItem('playerId', playerId);
+  }
+
+  getPlayerId(): string {
+    return localStorage.getItem('playerId') || '';
   }
 
   isLoggedIn() {

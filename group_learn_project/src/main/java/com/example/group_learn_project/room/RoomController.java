@@ -33,20 +33,28 @@ public class RoomController {
     public List<Room> getAllRooms(){
         return roomService.getAllRooms();
     }
+
+    @GetMapping("/code/{code}")
+    public Room getRoomByCode(@PathVariable String code){
+        return roomService.getRoomByCode(code);
+    }
+
+
     @PostMapping
-    public Room createRoom(@RequestBody Room room, @RequestHeader("Authorization") String authHeader){
+    public Room createRoom(@RequestBody Map<String,String> body, @RequestHeader("Authorization") String authHeader){
         String token = authHeader.substring(7);
-        String id = getIdFromToken(token);
+        String id = jwtUtils.getIdFromToken(token);
+        Room room = roomService.createRoom(body.get("packId"), id);
         messagingTemplate.convertAndSend("/topic/rooms", room);
 
-        return roomService.createRoom(room, id);
+        return room;
         //add check if duplicate to all post mappings, questionpack tooc
     }
 
     @PostMapping("/join")
     public Room joinRoom(@RequestBody Room room, @RequestHeader("Authorization") String authHeader){
         String token = authHeader.substring(7);
-        String id = getIdFromToken(token);
+        String id = jwtUtils.getIdFromToken(token);
         Map<String, String> response = new HashMap<>();
         response.put("code", room.getCode());
         messagingTemplate.convertAndSend("/user/queue/room-joined", response);
@@ -67,14 +75,5 @@ public class RoomController {
         return roomService.getActiveRooms();
     }
 
-    public String getIdFromToken(String token){
-        String hostEmail = jwtUtils.extractEmail(token);
-        User user = userService.getUserByEmail(hostEmail).orElse(null);
-        if (user != null) {
-            return user.getId();
-        }
-        else  {
-            return null;
-        }
-    }
+
 }

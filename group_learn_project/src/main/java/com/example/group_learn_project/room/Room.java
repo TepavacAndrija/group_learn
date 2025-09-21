@@ -23,7 +23,6 @@ public class Room {
     private List<String> playerIds = new ArrayList<>();
     private Integer currentQuestionIndex = 0;
     private String currentAnswererId;
-    private Boolean gameActive = false;
     private RoomStatus status = RoomStatus.WAITING;
 
 }

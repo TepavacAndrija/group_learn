@@ -22,10 +22,10 @@
   </div>
 
   <!-- Poruka kada nema soba -->
-  <div *ngIf="rooms.length === 0 && packId" class="empty-state">
+  <!-- <div *ngIf="rooms.length === 0 && packId" class="empty-state">
     <p>No rooms available. Be the first to create one!</p>
     <button class="create-first" (click)="createRoom()">Create Room</button>
-  </div>
+  </div> -->
 
   <!-- Forma za kreiranje sobe (samo ako je izabran paket) -->
   <div *ngIf="packId" class="create-room">
