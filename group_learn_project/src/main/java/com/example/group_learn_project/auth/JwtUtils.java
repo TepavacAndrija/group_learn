@@ -1,6 +1,5 @@
 package com.example.group_learn_project.auth;
 
-
 import com.example.group_learn_project.user.User;
 import com.example.group_learn_project.user.UserService;
 import io.jsonwebtoken.JwtException;
@@ -49,18 +48,17 @@ public class JwtUtils {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException e){
+        } catch (JwtException e) {
             return false;
         }
     }
 
-    public String getIdFromToken(String token){
+    public String getIdFromToken(String token) {
         String hostEmail = extractEmail(token);
         User user = userService.getUserByEmail(hostEmail).orElse(null);
         if (user != null) {
             return user.getId();
-        }
-        else  {
+        } else {
             return null;
         }
     }

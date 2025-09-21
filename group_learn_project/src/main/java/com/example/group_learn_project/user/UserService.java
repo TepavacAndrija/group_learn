@@ -1,7 +1,6 @@
 package com.example.group_learn_project.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,16 +11,15 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-
-    public User saveUser(User user){
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserByEmail(String email){
+    public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 

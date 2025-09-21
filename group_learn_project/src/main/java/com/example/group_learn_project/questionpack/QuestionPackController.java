@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/packs")
@@ -15,12 +14,12 @@ public class QuestionPackController {
     private QuestionPackService questionPackService;
 
     @GetMapping
-    public List<QuestionPack> findAll(){
+    public List<QuestionPack> findAll() {
         return questionPackService.findAll();
     }
 
     @PostMapping
-    public QuestionPack save(@RequestBody QuestionPack questionPack){
+    public QuestionPack save(@RequestBody QuestionPack questionPack) {
         return questionPackService.create(questionPack);
     }
 
@@ -29,5 +28,5 @@ public class QuestionPackController {
         QuestionPack pack = questionPackService.findById(id);
         return ResponseEntity.ok(pack);
     }
-    
+
 }

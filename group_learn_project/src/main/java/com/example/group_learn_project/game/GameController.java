@@ -13,11 +13,8 @@ import com.example.group_learn_project.questionpack.QuestionPackService;
 import com.example.group_learn_project.room.Room;
 import com.example.group_learn_project.room.RoomService;
 
-import com.example.group_learn_project.user.UserService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -35,9 +32,6 @@ public class GameController {
     private AnswerService answerService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private FeedbackService feedbackService;
 
     @Autowired
@@ -45,9 +39,6 @@ public class GameController {
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private CorrectionService correctionService;

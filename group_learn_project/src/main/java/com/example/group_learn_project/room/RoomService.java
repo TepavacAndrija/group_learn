@@ -1,11 +1,8 @@
 package com.example.group_learn_project.room;
 
-import com.example.group_learn_project.game.GameFinishedDTO;
 import com.example.group_learn_project.game.GameUpdateDTO;
-import com.example.group_learn_project.game.NextQuestionDTO;
 import com.example.group_learn_project.questionpack.QuestionPack;
 import com.example.group_learn_project.questionpack.QuestionPackService;
-import com.example.group_learn_project.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -21,17 +18,14 @@ public class RoomService {
     private QuestionPackService questionPackService;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-    @Autowired
-    private UserRepository userRepository;
 
-    public Room createRoom(String packId, String hostId){
+    public Room createRoom(String packId, String hostId) {
         Room room = new Room();
         QuestionPack pack = questionPackService.findById(packId);
-        if(pack != null){
+        if (pack != null) {
             room.setPackId(packId);
             room.setPackName(pack.getName());
-        }
-        else{
+        } else {
             throw new RuntimeException("Pack id not found");
         }
         room.setHostId(hostId);
@@ -41,19 +35,19 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    public String generateRoomCode(){
+    public String generateRoomCode() {
         return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 
-    public Room joinRoom(String code, String playerId){
+    public Room joinRoom(String code, String playerId) {
         Room room = roomRepository.findByCode(code);
-        if(room == null){
+        if (room == null) {
             throw new RuntimeException("Room not found");
         }
-        if(room.getCurrentPlayers() >= room.getMaxPlayers()){
+        if (room.getCurrentPlayers() >= room.getMaxPlayers()) {
             throw new RuntimeException("Room is full");
         }
-        if(room.getPlayerIds().contains(playerId)){
+        if (room.getPlayerIds().contains(playerId)) {
             return room;
         }
 
@@ -64,11 +58,10 @@ public class RoomService {
         RoomUpdateDTO dto = new RoomUpdateDTO(updated);
         messagingTemplate.convertAndSend("/topic/rooms", dto);
 
-
         return updated;
     }
 
-    public List<Room> getAllRooms(){
+    public List<Room> getAllRooms() {
         return roomRepository.findAll();
     }
 
@@ -84,24 +77,23 @@ public class RoomService {
         return roomRepository.findByCode(code);
     }
 
-
-//    public Room startGame(String roomId, String playerId) {
-//        Room room = roomRepository.findById(roomId).orElseThrow();
-//
-//        if (!room.getHostId().equals(playerId)) {
-//            throw new RuntimeException("Only host can start the game");
-//        }
-//
-//        room.setStatus(RoomStatus.ACTIVE);
-//        room.setCurrentQuestionIndex(0);
-//        room.setCurrentAnswererId(room.getPlayerIds().getFirst());
-//        Room updated = roomRepository.save(room);
-//
-//        messagingTemplate.convertAndSend("/topic/game/" + room.getCode(),
-//                new GameStartedDTO(room room.getCode(), room.getCurrentAnswererId()));
-//
-//        return updated;
-//    }
+    // public Room startGame(String roomId, String playerId) {
+    // Room room = roomRepository.findById(roomId).orElseThrow();
+    //
+    // if (!room.getHostId().equals(playerId)) {
+    // throw new RuntimeException("Only host can start the game");
+    // }
+    //
+    // room.setStatus(RoomStatus.ACTIVE);
+    // room.setCurrentQuestionIndex(0);
+    // room.setCurrentAnswererId(room.getPlayerIds().getFirst());
+    // Room updated = roomRepository.save(room);
+    //
+    // messagingTemplate.convertAndSend("/topic/game/" + room.getCode(),
+    // new GameStartedDTO(room room.getCode(), room.getCurrentAnswererId()));
+    //
+    // return updated;
+    // }
 
     public Room startGame(String roomId, String playerId) {
         // 1. Dohvati sobu iz baze
@@ -112,7 +104,6 @@ public class RoomService {
         if (!room.getHostId().equals(playerId)) {
             throw new RuntimeException("Only the host can start the game.");
         }
-
 
         room.setStatus(RoomStatus.ACTIVE);
         room.setCurrentQuestionIndex(0);
@@ -135,59 +126,60 @@ public class RoomService {
         message.setCurrentAnswererId(room.getCurrentAnswererId());
         message.setCurrentQuestionIndex(room.getCurrentQuestionIndex());
 
-
         // 7. Pošalji poruku svim klijentima pretplaćenim na /topic/game/{code}
         // Ovo će ih obavestiti da je igra počela i ko je prvi odgovarač
         messagingTemplate.convertAndSend(
                 "/topic/game/" + updatedRoom.getCode(),
-                message
-        );
+                message);
 
-        // 8. Opciono: Pošalji ažuriranje i na /topic/room/{code} ako frontend to koristi
+        // 8. Opciono: Pošalji ažuriranje i na /topic/room/{code} ako frontend to
+        // koristi
         // za ažuriranje stanja sobe (npr. WAITING -> ACTIVE)
-        // messagingTemplate.convertAndSend("/topic/room/" + updatedRoom.getCode(), updatedRoom);
+        // messagingTemplate.convertAndSend("/topic/room/" + updatedRoom.getCode(),
+        // updatedRoom);
 
         // 9. Vrati ažuriranu sobu
         return updatedRoom;
     }
 
-//    public Room nextQuestion(String roomId, String playerId) {
-//        Room room = roomRepository.findById(roomId).orElseThrow();
-//
-//        if (!room.getCurrentAnswererId().equals(playerId)) {
-//            throw new RuntimeException("Only current answerer can move to next question");
-//        }
-//        QuestionPack pack = questionPackService.findById(room.getPackId());
-//        if (room.getCurrentQuestionIndex() >= pack.getQuestions().size() - 1) {
-//            room.setStatus(RoomStatus.FINISHED);
-//            Room updated = roomRepository.save(room);
-//
-//            // Emituj kraj igre
-//            messagingTemplate.convertAndSend("/topic/game/" + room.getCode(),
-//                    new GameFinishedDTO(room.getCode()));
-//
-//            return updated;
-//        }
-//
-//        List<String> players = room.getPlayerIds();
-//        int currentIndex = players.indexOf(room.getCurrentAnswererId());
-//        int nextIndex = (currentIndex + 1) % players.size();
-//
-//        room.setCurrentQuestionIndex(room.getCurrentQuestionIndex() + 1);
-//        room.setCurrentAnswererId(players.get(nextIndex));
-//
-//        Room updated = roomRepository.save(room);
-//
-//        // Emituj novi odgovarač i pitanje
-//        messagingTemplate.convertAndSend("/topic/game/" + room.getCode(),
-//                new NextQuestionDTO(
-//                        room.getCode(),
-//                        room.getCurrentQuestionIndex(),
-//                        room.getCurrentAnswererId()
-//                ));
-//
-//        return updated;
-//    }
+    // public Room nextQuestion(String roomId, String playerId) {
+    // Room room = roomRepository.findById(roomId).orElseThrow();
+    //
+    // if (!room.getCurrentAnswererId().equals(playerId)) {
+    // throw new RuntimeException("Only current answerer can move to next
+    // question");
+    // }
+    // QuestionPack pack = questionPackService.findById(room.getPackId());
+    // if (room.getCurrentQuestionIndex() >= pack.getQuestions().size() - 1) {
+    // room.setStatus(RoomStatus.FINISHED);
+    // Room updated = roomRepository.save(room);
+    //
+    // // Emituj kraj igre
+    // messagingTemplate.convertAndSend("/topic/game/" + room.getCode(),
+    // new GameFinishedDTO(room.getCode()));
+    //
+    // return updated;
+    // }
+    //
+    // List<String> players = room.getPlayerIds();
+    // int currentIndex = players.indexOf(room.getCurrentAnswererId());
+    // int nextIndex = (currentIndex + 1) % players.size();
+    //
+    // room.setCurrentQuestionIndex(room.getCurrentQuestionIndex() + 1);
+    // room.setCurrentAnswererId(players.get(nextIndex));
+    //
+    // Room updated = roomRepository.save(room);
+    //
+    // // Emituj novi odgovarač i pitanje
+    // messagingTemplate.convertAndSend("/topic/game/" + room.getCode(),
+    // new NextQuestionDTO(
+    // room.getCode(),
+    // room.getCurrentQuestionIndex(),
+    // room.getCurrentAnswererId()
+    // ));
+    //
+    // return updated;
+    // }
 
     // RoomService.java (ili gde god se ova metoda nalazi)
 
