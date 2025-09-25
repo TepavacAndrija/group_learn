@@ -40,13 +40,19 @@ export class GameComponent {
   currentQuestionIndex = 0;
   currentQuestion: any = null;
   myAnswer = '';
-  corrections: string[] = [];
+  correction = '';
   isAnswerer = false;
   playerRole: 'answerer' | 'corrector' = 'corrector';
   room: Room | null = null;
   isHost = false;
   gameStarted = false;
   gameFinished = false;
+  answerSubmitted = false;
+  correctionSubmitted = false;
+  waitingForCorrections = false;
+
+  report: any = null;
+  showReport = false;
 
   private client: any;
   private roomUpdateSubscription: any;
@@ -88,14 +94,6 @@ export class GameComponent {
       onConnect: () => {
         console.log('Connected to WebSocket');
 
-        // this.roomUpdateSubscription = this.client.subscribe(
-        //   `/topic/room/${this.code}`,
-        //   (message: Stomp.IMessage) => {
-        //     const room = JSON.parse(message.body);
-        //     this.handleRoomUpdate(room);
-        //   }
-        // );
-
         this.gameUpdateSubscription = this.client.subscribe(
           `/topic/game/${this.code}`,
           (message: Stomp.IMessage) => {
@@ -112,38 +110,32 @@ export class GameComponent {
     this.client.activate();
   }
 
-  // private handleRoomUpdate(room: Room) {
-  //   this.room = room;
-
-  //   if (room.status === 'ACTIVE' && !this.gameStarted) {
-  //     this.gameStarted = true;
-  //     this.loadQuestion();
-  //   } else if (room.status === 'FINISHED') {
-  //     this.gameFinished = true;
-  //   }
-  // }
-
   private handleGameUpdate(update: any) {
     console.log('Game update received:', update);
 
     switch (update.type) {
+      case 'CORRECTION_PHASE':
+        this.correctionSubmitted = false;
+        this.waitingForCorrections = true;
+        break;
+
       case 'GAME_STARTED':
         this.gameStarted = true;
         this.room!.currentAnswererId = update.currentAnswererId;
         this.loadQuestion();
-
         break;
 
       case 'NEXT_QUESTION':
         this.room!.currentQuestionIndex = update.currentQuestionIndex;
         this.room!.currentAnswererId = update.currentAnswererId;
-        this.saveCorrections();
+        this.correctionSubmitted = false;
+        this.answerSubmitted = false;
+        this.waitingForCorrections = false;
         this.loadQuestion();
         break;
 
       case 'GAME_FINISHED':
         this.gameFinished = true;
-        this.saveCorrections();
         this.loadRoomAndPack();
         break;
     }
@@ -183,9 +175,8 @@ export class GameComponent {
             this.loadQuestion();
             this.gameStarted = true;
           } else if (room.status === 'FINISHED') {
-            alert('This game has already finished.');
             this.gameFinished = true;
-            this.router.navigate(['/home']);
+            // this.router.navigate(['/home']);
           }
         },
       });
@@ -200,6 +191,8 @@ export class GameComponent {
         next: (question) => {
           this.questions = [question];
           this.currentQuestion = question;
+          this.answerSubmitted = false;
+          this.correctionSubmitted = false;
           this.checkIfCurrentAnswerer();
         },
         error: (err) => {
@@ -241,13 +234,6 @@ export class GameComponent {
     });
   }
 
-  addCorrection() {
-    if (this.myAnswer.trim()) {
-      this.corrections.push(this.myAnswer);
-      this.myAnswer = '';
-    }
-  }
-
   submitAnswer() {
     if (!this.room || !this.isAnswerer || !this.myAnswer.trim()) return;
 
@@ -260,7 +246,7 @@ export class GameComponent {
 
     this.http.post('http://localhost:8080/api/game/answer', answer).subscribe({
       next: () => {
-        this.moveToNextQuestion();
+        this.answerSubmitted = true;
       },
       error: (err) => {
         console.error('Failed to submit answer:', err);
@@ -268,45 +254,47 @@ export class GameComponent {
     });
   }
 
-  saveCorrections() {
-    if (!this.room || !this.currentQuestion) {
-      console.error('No room or current question available');
-      return;
-    }
-
-    const correctionsToSend: { playerId: string; text: string }[] = [];
-    const currentUserId = this.getCurrentUserId();
-
-    if (this.corrections && this.corrections.length > 0) {
-      for (const correctionText of this.corrections) {
-        if (correctionText.trim()) {
-          correctionsToSend.push({
-            playerId: currentUserId,
-            text: correctionText.trim(),
-          });
-        }
-      }
-    }
-
-    const correctionsBody = {
-      roomId: this.room.id,
-      questionId: this.currentQuestion.id,
-      corrections: correctionsToSend,
-    };
+  viewReport() {
+    if (!this.room) return;
 
     this.http
-      .post('http://localhost:8080/api/game/corrections', correctionsBody)
+      .get(`http://localhost:8080/api/game/report/${this.room.id}`)
       .subscribe({
-        next: (response) => {
-          console.log('Corrections submitted successfully:', response);
-          this.corrections = [];
+        next: (data) => {
+          this.report = data;
+          this.showReport = true;
         },
         error: (err) => {
-          console.error('Failed to submit corrections:', err);
+          console.error('Failed to load report:', err);
         },
       });
   }
 
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+  submitCorrection() {
+    if (!this.room || !this.correction.trim()) return;
+
+    const correction = {
+      roomId: this.room.id,
+      playerId: this.getCurrentUserId(),
+      questionId: this.currentQuestion.id,
+      text: this.correction,
+    };
+
+    this.http
+      .post('http://localhost:8080/api/game/correction', correction)
+      .subscribe({
+        next: () => {
+          this.correctionSubmitted = true;
+          this.correction = '';
+        },
+        error: (err) => {
+          console.error('Failed to submit correction:', err);
+        },
+      });
+  }
   moveToNextQuestion() {
     if (!this.room || !this.currentQuestion) {
       console.error('No room or current question available');

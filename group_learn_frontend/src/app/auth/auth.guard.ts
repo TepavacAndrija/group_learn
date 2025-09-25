@@ -13,3 +13,15 @@ export const authGuard = () => {
   router.navigate(['/login']);
   return false;
 };
+
+export const authRedirectGuard = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (authService.isLoggedIn()) {
+    router.navigate(['/home']);
+    return false;
+  }
+
+  return true;
+};

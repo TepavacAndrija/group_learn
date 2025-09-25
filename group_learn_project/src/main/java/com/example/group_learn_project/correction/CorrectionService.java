@@ -12,20 +12,18 @@ public class CorrectionService {
     @Autowired
     private CorrectionRepository correctionRepository;
 
-    public void saveCorrections(CorrectionDTO dto) {
-        List<Correction> correctionsToSave = dto.getCorrections().stream()
-                .filter(item -> item != null &&
-                        item.getPlayerId() != null && !item.getPlayerId().isEmpty() &&
-                        item.getText() != null && !item.getText().trim().isEmpty())
-                .map(item -> new Correction(dto.getQuestionId(), item.getPlayerId(), item.getText().trim()))
-                .collect(Collectors.toList());
+    public void saveCorrection(CorrectionDTO dto) {
+        Correction correction = new Correction();
+        correction.setPlayerId(dto.getPlayerId());
+        correction.setQuestionId(dto.getQuestionId());
+        correction.setText(dto.getText().trim());
+        correction.setRoomId(dto.getRoomId());
+        correctionRepository.save(correction);
 
-        if (!correctionsToSave.isEmpty()) {
-            correctionRepository.saveAll(correctionsToSave);
-            System.out.println("Saved " + correctionsToSave.size() + " corrections for question ID: " + dto.getQuestionId());
-        } else {
-            System.out.println("No valid corrections found to save for question ID: " + dto.getQuestionId());
-        }
+    }
+
+    public List<Correction> findCorrectionsByQuestionIdAndRoomId(String questionId, String roomId) {
+        return correctionRepository.findCorrectionsByQuestionIdAndRoomId(questionId, roomId);
     }
 }
 

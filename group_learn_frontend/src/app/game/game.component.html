@@ -1,44 +1,3 @@
-<!-- <div *ngIf="currentQuestion" class="game-container">
-  <h2>{{ pack?.name }}</h2>
-  <p>Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}</p>
-
-  <div class="question">
-    <h3>{{ currentQuestion.text }}</h3>
-  </div>
-
-
-  <div *ngIf="isAnswerer" class="answer-section">
-    <h4>Your Answer</h4>
-    <textarea [(ngModel)]="myAnswer" placeholder="Write your answer here..."></textarea>
-    <button (click)="submitAnswer()">Submit Answer</button>
-  </div>
-
- 
-  <div *ngIf="!isAnswerer" class="correction-section">
-    <h4>Correct the Answer</h4>
-    <textarea [(ngModel)]="myAnswer" placeholder="Suggest an improvement..."></textarea>
-    <button (click)="addCorrection()">Add Suggestion</button>
-
-    <div *ngIf="corrections.length > 0" class="suggestions">
-      <h5>Suggestions:</h5>
-      <ul>
-        <li *ngFor="let corr of corrections">{{ corr }}</li>
-      </ul>
-    </div>
-  </div>
-
-
-  <div class="next-button">
-    <button (click)="nextQuestion()">Next Question</button>
-  </div>
-</div>
-
-<div *ngIf="!currentQuestion" class="loading">
-  <p>Loading game...</p>
-</div> -->
-
-<!-- Stanje prije početka igre -->
-
 <div *ngIf="room && room.status === 'WAITING'" class="waiting-for-start">
   <div class="info-box">
     <h3>Game Setup</h3>
@@ -55,44 +14,117 @@
 <div class="question" *ngIf="currentQuestion && currentQuestion.text">
   <h3>{{ currentQuestion.text }}</h3>
 </div>
-<!-- Odgovor -->
+
 <div *ngIf="isAnswerer && gameStarted" class="answer-section">
-  <textarea
-    [(ngModel)]="myAnswer"
-    placeholder="Write your answer here..."
-    [disabled]="!gameStarted || gameFinished"
-  ></textarea>
-  <button
-    class="submit-answer"
-    (click)="submitAnswer()"
-    [disabled]="!myAnswer.trim() || !gameStarted || gameFinished"
-  >
-    Submit Answer
-  </button>
+  <div *ngIf="!answerSubmitted">
+    <textarea
+      [(ngModel)]="myAnswer"
+      placeholder="Write your answer here..."
+      [disabled]="!gameStarted || gameFinished"
+    ></textarea>
+    <button
+      class="submit-answer"
+      (click)="submitAnswer()"
+      [disabled]="!myAnswer.trim() || !gameStarted || gameFinished"
+    >
+      Submit Answer
+    </button>
+  </div>
+
+  <div *ngIf="answerSubmitted" class="waiting-for-suggestions">
+    <p>Waiting for suggestions...</p>
+  </div>
 </div>
 
-<!-- Ispravke -->
 <div
   *ngIf="!isAnswerer && gameStarted && !gameFinished"
   class="correction-section"
 >
-  <textarea
-    [(ngModel)]="myAnswer"
-    placeholder="Suggest an improvement..."
-    [disabled]="gameFinished"
-  ></textarea>
-  <button
-    class="submit-correction"
-    (click)="addCorrection()"
-    [disabled]="!myAnswer.trim() || gameFinished"
+  <div
+    *ngIf="correctionSubmitted && waitingForCorrections"
+    class="correction-submitted"
   >
-    Add Suggestion
-  </button>
+    <p>Waiting for other suggestions...</p>
+  </div>
 
-  <div *ngIf="corrections.length > 0" class="suggestions">
-    <h4>Suggestions:</h4>
-    <ul>
-      <li *ngFor="let corr of corrections">{{ corr }}</li>
-    </ul>
+  <div
+    *ngIf="!correctionSubmitted && waitingForCorrections"
+    class="correction-input"
+  >
+    <textarea
+      [(ngModel)]="correction"
+      placeholder="Suggest an improvement..."
+      [disabled]="gameFinished"
+    ></textarea>
+    <button
+      class="submit-correction"
+      (click)="submitCorrection()"
+      [disabled]="!correction.trim() || gameFinished"
+    >
+      Submit Correction
+    </button>
+  </div>
+
+  <div
+    *ngIf="correctionSubmitted && waitingForCorrections"
+    class="correction-submitted"
+  >
+    <p>Correction submitted!</p>
+  </div>
+</div>
+
+<div *ngIf="gameFinished && !showReport && room" class="game-finished-overlay">
+  <div class="finished-content">
+    <h2>🎉 Game Finished!</h2>
+    <p>The session has ended. Thank you for playing!</p>
+
+    <div class="finished-buttons">
+      <button class="btn-home" (click)="goToHome()">
+        <i class="fas fa-home"></i> Return to Home
+      </button>
+
+      <button class="btn-report" (click)="viewReport()">
+        <i class="fas fa-file-alt"></i> View Results
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showReport && report" class="report-overlay">
+  <div class="report-content">
+    <h2>Game Report</h2>
+    <p><strong>Room:</strong> {{ report.roomId }}</p>
+    <p><strong>Pack:</strong> {{ report.packName }}</p>
+
+    <div class="questions" *ngFor="let q of report.questions; let i = index">
+      <h3>Question {{ i + 1 }}: {{ q.questionText }}</h3>
+
+      <div *ngIf="q.answer" class="answer-section">
+        <h4>Answer:</h4>
+        <p>{{ q.answer.text }}</p>
+        <small>by Player {{ q.answer.playerName || "Unknown" }}</small>
+      </div>
+
+      <div class="corrections-section" *ngIf="q.corrections?.length">
+        <h4>Corrections ({{ q.corrections.length }}):</h4>
+        <div *ngFor="let c of q.corrections" class="correction-item">
+          <p>{{ c.text }}</p>
+          <small>by Player {{ c.playerName || "Unknown" }}</small>
+        </div>
+      </div>
+
+      <div *ngIf="!q.answer && (!q.corrections || q.corrections.length === 0)">
+        <p><em>No answers or corrections.</em></p>
+      </div>
+    </div>
+
+    <div class="report-buttons">
+      <button (click)="showReport = false" class="btn-back">
+        ← Back to Summary
+      </button>
+      <button (click)="goToHome()" class="btn-home-small">
+        Return to Home
+      </button>
+    </div>
   </div>
 </div>

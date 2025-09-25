@@ -13,7 +13,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './app/auth/auth.service';
 import { TokenInterceptor } from './app/auth/token.interceptor';
-import { authGuard } from './app/auth/auth.guard';
+import { authGuard, authRedirectGuard } from './app/auth/auth.guard';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -34,6 +34,7 @@ bootstrapApplication(AppComponent, {
           import('./app/auth/login/login.component').then(
             (c) => c.LoginComponent
           ),
+        canActivate: [authRedirectGuard],
       },
       {
         path: 'register',
@@ -41,6 +42,7 @@ bootstrapApplication(AppComponent, {
           import('./app/auth/register/register.component').then(
             (c) => c.RegisterComponent
           ),
+        canActivate: [authRedirectGuard],
       },
       {
         path: 'home',

@@ -7,5 +7,6 @@ import java.util.List;
 
 @Repository
 public interface CorrectionRepository extends MongoRepository<Correction, String> {
-    List<Correction> findCorrectionById(String id);
+    List<Correction> findCorrectionsByQuestionIdAndRoomId(String questionId, String roomId);
+    List<Correction> findCorrectionByQuestionId(String id);
 }

@@ -17,4 +17,8 @@ public class AnswerService {
     public List<Answer> getAnswersByRoom(String roomId) {
         return repository.findByRoomId(roomId);
     }
+
+    public Answer findByRoomIdAndQuestionId(String roomId, String questionId) {
+        return repository.findByRoomIdAndQuestionId(roomId, questionId);
+    }
 }

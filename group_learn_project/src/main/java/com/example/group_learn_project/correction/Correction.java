@@ -17,10 +17,7 @@ public class Correction {
     private String questionId;
     private String playerId;
     private String text;
+    private String roomId;
 
-    public Correction(String questionId, String playerId, String text) {
-        this.questionId = questionId;
-        this.playerId = playerId;
-        this.text = text;
-    }
+
 }

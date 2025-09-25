@@ -8,12 +8,7 @@ import java.util.List;
 public class CorrectionDTO {
     String roomId;
     String questionId;
-    List<CorrectionItem> corrections;
-
-    @Data
-    public static class CorrectionItem{
-        String playerId;
-        String text;
-    }
+    String playerId;
+    String text;
 
 }
