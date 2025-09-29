@@ -8,6 +8,9 @@
   <a [routerLink]="'/packs'">Packs</a>
   <a [routerLink]="'/rooms'">Rooms</a>
   <a [routerLink]="'/game'">Game</a>
+
+  <span class="welcome-text">Hello, {{ userName || "Player" }}!</span>
+  <button (click)="logout()" class="logout-btn">Logout</button>
 </nav>
 
 <router-outlet></router-outlet>

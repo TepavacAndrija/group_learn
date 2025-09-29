@@ -11,11 +11,14 @@
   </div>
 </div>
 
-<div class="question" *ngIf="currentQuestion && currentQuestion.text">
+<div
+  class="question"
+  *ngIf="!gameFinished && currentQuestion && currentQuestion.text"
+>
   <h3>{{ currentQuestion.text }}</h3>
 </div>
 
-<div *ngIf="isAnswerer && gameStarted" class="answer-section">
+<div *ngIf="!gameFinished && isAnswerer && gameStarted" class="answer-section">
   <div *ngIf="!answerSubmitted">
     <textarea
       [(ngModel)]="myAnswer"
@@ -48,7 +51,7 @@
   </div>
 
   <div
-    *ngIf="!correctionSubmitted && waitingForCorrections"
+    *ngIf="!gameFinished && !correctionSubmitted && waitingForCorrections"
     class="correction-input"
   >
     <textarea
@@ -66,7 +69,7 @@
   </div>
 
   <div
-    *ngIf="correctionSubmitted && waitingForCorrections"
+    *ngIf="!gameFinished && correctionSubmitted && waitingForCorrections"
     class="correction-submitted"
   >
     <p>Correction submitted!</p>

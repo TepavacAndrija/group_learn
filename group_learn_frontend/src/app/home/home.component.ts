@@ -7,13 +7,13 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent {
   constructor(public authService: AuthService, private router: Router) {}
-    
+
   logout() {
-      this.authService.logout();
-      this.router.navigate(['/login']);
-      }
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Token } from '@angular/compiler';
+import { map, catchError } from 'rxjs/operators';
+import { of, Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,8 +14,12 @@ export class AuthService {
     skip: 'true',
   });
 
-  constructor(private http: HttpClient) {}
+  private userNameSubject = new BehaviorSubject<string | null>(null);
+  public userName$ = this.userNameSubject.asObservable();
 
+  constructor(private http: HttpClient) {
+    this.loadUserName();
+  }
   register(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userData);
   }
@@ -40,6 +44,23 @@ export class AuthService {
 
   getPlayerId(): string {
     return localStorage.getItem('playerId') || '';
+  }
+
+  loadUserName(): Observable<string> {
+    const playerId = this.getPlayerId();
+    if (playerId) {
+      return this.http
+        .get<any>(`http://localhost:8080/api/users/${playerId}`)
+        .pipe(
+          map((response) => response?.name ?? 'Unknown'),
+          catchError((err) => {
+            console.error('Failed to load user name:', err);
+            return of('Unknown');
+          })
+        );
+    } else {
+      return of('Unknown');
+    }
   }
 
   isLoggedIn() {
