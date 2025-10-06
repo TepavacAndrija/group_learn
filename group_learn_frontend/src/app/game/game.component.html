@@ -1,133 +1,162 @@
-<div *ngIf="room && room.status === 'WAITING'" class="waiting-for-start">
-  <div class="info-box">
-    <h3>Game Setup</h3>
-    <p>Waiting for host to start the game...</p>
-  </div>
+<div class="container py-4">
+  <div *ngIf="room && room.status === 'WAITING'" class="text-center mb-5">
+    <div class="card bg-dark text-light p-4 mb-4">
+      <h3 class="h4 mb-2">Game Setup</h3>
+      <p class="text-highlight-muted">Waiting for host to start the game...</p>
+    </div>
 
-  <div *ngIf="isHost" class="host-controls">
-    <button class="start-game-btn" (click)="startGame()">
-      <i class="fas fa-play"></i> Start Game
-    </button>
-  </div>
-</div>
-
-<div
-  class="question"
-  *ngIf="!gameFinished && currentQuestion && currentQuestion.text"
->
-  <h3>{{ currentQuestion.text }}</h3>
-</div>
-
-<div *ngIf="!gameFinished && isAnswerer && gameStarted" class="answer-section">
-  <div *ngIf="!answerSubmitted">
-    <textarea
-      [(ngModel)]="myAnswer"
-      placeholder="Write your answer here..."
-      [disabled]="!gameStarted || gameFinished"
-    ></textarea>
-    <button
-      class="submit-answer"
-      (click)="submitAnswer()"
-      [disabled]="!myAnswer.trim() || !gameStarted || gameFinished"
-    >
-      Submit Answer
-    </button>
-  </div>
-
-  <div *ngIf="answerSubmitted" class="waiting-for-suggestions">
-    <p>Waiting for suggestions...</p>
-  </div>
-</div>
-
-<div
-  *ngIf="!isAnswerer && gameStarted && !gameFinished"
-  class="correction-section"
->
-  <div
-    *ngIf="correctionSubmitted && waitingForCorrections"
-    class="correction-submitted"
-  >
-    <p>Waiting for other suggestions...</p>
-  </div>
-
-  <div
-    *ngIf="!gameFinished && !correctionSubmitted && waitingForCorrections"
-    class="correction-input"
-  >
-    <textarea
-      [(ngModel)]="correction"
-      placeholder="Suggest an improvement..."
-      [disabled]="gameFinished"
-    ></textarea>
-    <button
-      class="submit-correction"
-      (click)="submitCorrection()"
-      [disabled]="!correction.trim() || gameFinished"
-    >
-      Submit Correction
-    </button>
-  </div>
-
-  <div
-    *ngIf="!gameFinished && correctionSubmitted && waitingForCorrections"
-    class="correction-submitted"
-  >
-    <p>Correction submitted!</p>
-  </div>
-</div>
-
-<div *ngIf="gameFinished && !showReport && room" class="game-finished-overlay">
-  <div class="finished-content">
-    <h2>🎉 Game Finished!</h2>
-    <p>The session has ended. Thank you for playing!</p>
-
-    <div class="finished-buttons">
-      <button class="btn-home" (click)="goToHome()">
-        <i class="fas fa-home"></i> Return to Home
-      </button>
-
-      <button class="btn-report" (click)="viewReport()">
-        <i class="fas fa-file-alt"></i> View Results
+    <div *ngIf="isHost" class="d-grid">
+      <button class="btn btn-success btn-lg" (click)="startGame()">
+        <i class="fas fa-play me-2"></i> Start Game
       </button>
     </div>
   </div>
-</div>
 
-<div *ngIf="showReport && report" class="report-overlay">
-  <div class="report-content">
-    <h2>Game Report</h2>
-    <p><strong>Room:</strong> {{ report.roomId }}</p>
-    <p><strong>Pack:</strong> {{ report.packName }}</p>
+  <div
+    *ngIf="!gameFinished && currentQuestion && currentQuestion.text"
+    class="text-center mb-5"
+  >
+    <div class="card bg-primary text-white p-4 shadow">
+      <h3 class="mb-0">{{ currentQuestion.text }}</h3>
+    </div>
+  </div>
 
-    <div class="questions" *ngFor="let q of report.questions; let i = index">
-      <h3>Question {{ i + 1 }}: {{ q.questionText }}</h3>
+  <div *ngIf="!gameFinished && isAnswerer && gameStarted" class="mb-5">
+    <div class="card bg-dark text-light p-4">
+      <h4 class="mb-3">Your Turn: Write an Answer</h4>
 
-      <div *ngIf="q.answer" class="answer-section">
-        <h4>Answer:</h4>
-        <p>{{ q.answer.text }}</p>
-        <small>by Player {{ q.answer.playerName || "Unknown" }}</small>
+      <div *ngIf="!answerSubmitted">
+        <div class="mb-3">
+          <textarea
+            [(ngModel)]="myAnswer"
+            placeholder="Write your answer here..."
+            class="form-control form-control-lg"
+            rows="4"
+            [disabled]="!gameStarted || gameFinished"
+          ></textarea>
+        </div>
+        <button
+          class="btn btn-primary w-100 py-2"
+          (click)="submitAnswer()"
+          [disabled]="!myAnswer.trim() || !gameStarted || gameFinished"
+        >
+          Submit Answer
+        </button>
       </div>
 
-      <div class="corrections-section" *ngIf="q.corrections?.length">
-        <h4>Corrections ({{ q.corrections.length }}):</h4>
-        <div *ngFor="let c of q.corrections" class="correction-item">
-          <p>{{ c.text }}</p>
-          <small>by Player {{ c.playerName || "Unknown" }}</small>
+      <div *ngIf="answerSubmitted" class="text-center">
+        <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+        <p class="mb-0">Waiting for suggestions...</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isAnswerer && gameStarted && !gameFinished" class="mb-5">
+    <div class="card bg-dark text-light p-4">
+      <h4 class="mb-3">Suggest an Improvement</h4>
+
+      <div
+        *ngIf="correctionSubmitted && waitingForCorrections"
+        class="text-center"
+      >
+        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+        <p class="mb-0">Correction submitted!</p>
+        <p class="text-highlight-muted small mt-2">
+          Waiting for other suggestions...
+        </p>
+      </div>
+
+      <div
+        *ngIf="!gameFinished && !correctionSubmitted && waitingForCorrections"
+        class="mt-3"
+      >
+        <div class="mb-3">
+          <textarea
+            [(ngModel)]="correction"
+            placeholder="Suggest an improvement..."
+            class="form-control"
+            rows="3"
+            [disabled]="gameFinished"
+          ></textarea>
+        </div>
+        <button
+          class="btn btn-outline-primary w-100 py-2"
+          (click)="submitCorrection()"
+          [disabled]="!correction.trim() || gameFinished"
+        >
+          Submit Correction
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="gameFinished && !showReport && room" class="text-center">
+    <div class="card bg-dark text-light p-5 mb-4">
+      <h2 class="mb-3">🎉 Game Finished!</h2>
+      <p class="lead">The session has ended. Thank you for playing!</p>
+
+      <div class="d-grid gap-3" style="max-width: 300px; margin: 0 auto">
+        <button class="btn btn-outline-light" (click)="goToHome()">
+          <i class="fas fa-home me-2"></i> Return to Home
+        </button>
+        <button class="btn btn-primary" (click)="viewReport()">
+          <i class="fas fa-file-alt me-2"></i> View Results
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showReport && report">
+    <div class="card bg-dark text-light p-4 mb-4">
+      <h2 class="h3 mb-4">Game Report</h2>
+      <p><strong>Room:</strong> {{ report.roomId }}</p>
+      <p><strong>Pack:</strong> {{ report.packName }}</p>
+
+      <div class="mt-4">
+        <div
+          *ngFor="let q of report.questions; let i = index"
+          class="border-bottom border-secondary pb-4 mb-4"
+        >
+          <h4 class="mb-3">Question {{ i + 1 }}: {{ q.questionText }}</h4>
+
+          <div *ngIf="q.answer" class="mb-3">
+            <h5 class="text-primary">Answer:</h5>
+            <p class="bg-secondary bg-opacity-25 p-3 rounded">
+              {{ q.answer.text }}
+            </p>
+            <small class="text-highlight-muted"
+              >by Player {{ q.answer.playerName || "Unknown" }}</small
+            >
+          </div>
+
+          <div *ngIf="q.corrections?.length" class="mb-3">
+            <h5 class="text-info">Corrections ({{ q.corrections.length }}):</h5>
+            <div *ngFor="let c of q.corrections" class="mt-2">
+              <p class="bg-info bg-opacity-10 p-2 rounded">{{ c.text }}</p>
+              <small class="text-highlight-muted"
+                >by Player {{ c.playerName || "Unknown" }}</small
+              >
+            </div>
+          </div>
+
+          <div
+            *ngIf="!q.answer && (!q.corrections || q.corrections.length === 0)"
+          >
+            <p class="text-highlight-muted">
+              <em>No answers or corrections.</em>
+            </p>
+          </div>
         </div>
       </div>
 
-      <div *ngIf="!q.answer && (!q.corrections || q.corrections.length === 0)">
-        <p><em>No answers or corrections.</em></p>
+      <div class="d-flex justify-content-center gap-3 mt-4">
+        <button class="btn btn-outline-secondary" (click)="showReport = false">
+          ← Back to Summary
+        </button>
+        <button class="btn btn-outline-light" (click)="goToHome()">
+          Return to Home
+        </button>
       </div>
-    </div>
-
-    <div class="report-buttons">
-      <button (click)="showReport = false" class="btn-back">
-        ← Back to Summary
-      </button>
-      <button (click)="goToHome()" class="btn-home-small">
-        Return to Home
-      </button>
     </div>
   </div>
 </div>

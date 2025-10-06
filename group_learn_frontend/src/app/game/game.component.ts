@@ -176,7 +176,6 @@ export class GameComponent {
             this.gameStarted = true;
           } else if (room.status === 'FINISHED') {
             this.gameFinished = true;
-            // this.router.navigate(['/home']);
           }
         },
       });

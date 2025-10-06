@@ -5,8 +5,6 @@ import com.example.group_learn_project.answer.AnswerService;
 import com.example.group_learn_project.auth.JwtUtils;
 import com.example.group_learn_project.correction.CorrectionDTO;
 import com.example.group_learn_project.correction.CorrectionService;
-import com.example.group_learn_project.feedback.Feedback;
-import com.example.group_learn_project.feedback.FeedbackService;
 import com.example.group_learn_project.gameReports.GameReportDTO;
 import com.example.group_learn_project.gameReports.GameReportService;
 import com.example.group_learn_project.question.Question;
@@ -26,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/game")
@@ -37,9 +34,6 @@ public class GameController {
 
     @Autowired
     private AnswerService answerService;
-
-    @Autowired
-    private FeedbackService feedbackService;
 
     @Autowired
     private QuestionPackService questionPackService;
@@ -104,23 +98,10 @@ public class GameController {
 
         messagingTemplate.convertAndSend(
                 "/topic/game/" + room.getCode(),
-                new GameUpdateDTO("CORRECTION_PHASE"
-                        ,room.getCode()
-                        ,room.getCurrentAnswererId()
-                        ,room.getCurrentQuestionIndex())
-        );
+                new GameUpdateDTO("CORRECTION_PHASE", room.getCode(), room.getCurrentAnswererId(),
+                        room.getCurrentQuestionIndex()));
 
         return newAnswer;
-    }
-
-    @PostMapping("/feedback")
-    public Feedback submitFeedback(@RequestBody Feedback feedback) {
-        return feedbackService.saveFeedback(feedback);
-    }
-
-    @GetMapping("/feedback/{answerId}")
-    public List<Feedback> getFeedbacks(@PathVariable String answerId) {
-        return feedbackService.getFeedbacksByAnswer(answerId);
     }
 
     @PostMapping("/next")
@@ -168,14 +149,10 @@ public class GameController {
             if (allSubmitted) {
                 Room nextRoom = roomService.nextQuestion(dto.getRoomId(), dto.getPlayerId());
 
-
                 messagingTemplate.convertAndSend(
                         "/topic/game/" + nextRoom.getCode(),
-                        new GameUpdateDTO("NEXT_QUESTION"
-                                , nextRoom.getCode()
-                                , nextRoom.getCurrentAnswererId()
-                                , nextRoom.getCurrentQuestionIndex())
-                );
+                        new GameUpdateDTO("NEXT_QUESTION", nextRoom.getCode(), nextRoom.getCurrentAnswererId(),
+                                nextRoom.getCurrentQuestionIndex()));
             }
 
             return ResponseEntity.ok().build();

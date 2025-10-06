@@ -18,7 +18,7 @@ export class AuthService {
   public userName$ = this.userNameSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.loadUserName();
+    this.userName$ = this.loadUserName();
   }
   register(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userData);
@@ -52,7 +52,7 @@ export class AuthService {
       return this.http
         .get<any>(`http://localhost:8080/api/users/${playerId}`)
         .pipe(
-          map((response) => response?.name ?? 'Unknown'),
+          map((response) => response?.username ?? 'Unknown'),
           catchError((err) => {
             console.error('Failed to load user name:', err);
             return of('Unknown');

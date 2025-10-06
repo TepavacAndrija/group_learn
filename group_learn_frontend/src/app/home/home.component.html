@@ -1,2 +1,60 @@
-<p>home works!</p>
-<button (click)="logout()" class="logout-btn">Logout</button>
+<div class="container py-5">
+  <!-- <div class="d-flex align-items-center mb-4">
+    <i
+      class="fas me-2"
+      [class.fa-circle]="isConnected()"
+      [class.fa-spinner]="!isConnected()"
+      [class.fa-spin]="!isConnected()"
+      [class.text-success]="isConnected()"
+      [class.text-warning]="!isConnected()"
+    ></i>
+    <span class="text-muted">
+      {{ isConnected() ? "Connected to server" : "Connecting..." }}
+    </span>
+  </div> -->
+
+  <div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Welcome</h1>
+    <p class="lead text-light">Join a room and start playing!</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card p-4">
+        <h2 class="h4 mb-4 text-center">Enter Room Code</h2>
+
+        <div class="mb-3">
+          <label for="roomCode" class="form-label">Room Code</label>
+          <input
+            type="text"
+            id="roomCode"
+            [(ngModel)]="roomCode"
+            placeholder="Enter 6-digit code"
+            class="form-control"
+            [disabled]="isJoining || !isConnected()"
+            (keyup.enter)="joinRoom()"
+            maxlength="6"
+          />
+        </div>
+
+        <div
+          *ngIf="errorMessage"
+          class="alert alert-danger d-flex align-items-center"
+        >
+          <i class="fas fa-exclamation-circle me-2"></i>
+          {{ errorMessage }}
+        </div>
+
+        <button
+          class="btn btn-primary w-100 py-2"
+          (click)="joinRoom()"
+          [disabled]="isJoining || !isConnected() || !roomCode.trim()"
+        >
+          <i *ngIf="!isJoining" class="fas fa-sign-in-alt me-2"></i>
+          <i *ngIf="isJoining" class="fas fa-spinner fa-spin me-2"></i>
+          {{ isJoining ? "Joining..." : "Join Room" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

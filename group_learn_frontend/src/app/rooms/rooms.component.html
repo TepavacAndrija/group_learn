@@ -1,89 +1,78 @@
-<div class="rooms-container">
-  <!-- WebSocket status indikator - dodato -->
-  <div class="websocket-status" [class.connected]="isConnected()">
+<div class="container py-4">
+  <!-- <div class="d-flex align-items-center mb-3">
     <i
-      class="fas"
-      [class.fa-circle]="client"
+      class="fas me-2"
+      [class.fa-circle]="isConnected()"
       [class.fa-spinner]="!isConnected()"
       [class.fa-spin]="!isConnected()"
+      [class.text-success]="isConnected()"
+      [class.text-warning]="!isConnected()"
     ></i>
     {{ isConnected() ? "Connected to server" : "Connecting..." }}
-  </div>
-
-  <!-- Header sa informacijama o izabranom paketu -->
-  <div *ngIf="packId" class="selected-pack">
-    <h2>Available Rooms</h2>
-    <p class="pack-info">
-      <strong>Selected Pack:</strong> {{ packName }}
-      <span *ngIf="packId" class="room-count"
-        >({{ rooms.length }} room{{ rooms.length !== 1 ? "s" : "" }})</span
-      >
-    </p>
-  </div>
-
-  <!-- Poruka kada nema soba -->
-  <!-- <div *ngIf="rooms.length === 0 && packId" class="empty-state">
-    <p>No rooms available. Be the first to create one!</p>
-    <button class="create-first" (click)="createRoom()">Create Room</button>
   </div> -->
 
-  <!-- Forma za kreiranje sobe (samo ako je izabran paket) -->
-  <div *ngIf="packId" class="create-room">
-    <div class="form-group">
-      <button class="create-room-btn" (click)="createRoom()">
-        <i class="fas fa-plus"></i> Create New Room
-      </button>
+  <div *ngIf="packId" class="mb-4">
+    <h2 class="h4">Available Rooms</h2>
+    <p class="text-highlight-muted">
+      <strong>Selected Pack:</strong> {{ packName }}
+      <span *ngIf="packId" class="ms-2 badge bg-secondary">
+        {{ rooms.length }} room{{ rooms.length !== 1 ? "s" : "" }}
+      </span>
+    </p>
+  </div>
+
+  <div *ngIf="packId" class="mb-4">
+    <button class="btn btn-outline-primary btn-success" (click)="createRoom()">
+      <i class="fas fa-plus me-2"></i> Create New Room
+    </button>
+  </div>
+
+  <div *ngIf="rooms.length > 0" class="row g-3">
+    <div *ngFor="let room of rooms" class="col-12">
+      <div class="card bg-dark text-light p-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div><strong>Code:</strong> {{ room.code }}</div>
+          <div class="text-muted">
+            <i class="fas fa-users me-1"></i> {{ room.currentPlayers }} /
+            {{ room.maxPlayers }}
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <div><strong>Pack:</strong> {{ room.packName }}</div>
+          <div class="text-warning mt-1">
+            <i class="fas fa-clock me-1"></i> Waiting for players
+          </div>
+        </div>
+
+        <div>
+          <button
+            class="btn btn-outline-primary w-100"
+            (click)="joinRoom(room.code)"
+            [disabled]="joiningRoomCode === room.code"
+          >
+            <i
+              *ngIf="joiningRoomCode !== room.code"
+              class="fas fa-sign-in-alt me-2"
+            ></i>
+            <i
+              *ngIf="joiningRoomCode === room.code"
+              class="fas fa-spinner fa-spin me-2"
+            ></i>
+            {{ joiningRoomCode !== room.code ? "Join Room" : "Joining..." }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Lista soba -->
-  <div *ngIf="rooms.length > 0" class="rooms-list">
-    <div *ngFor="let room of rooms" class="room-card">
-      <div class="room-header">
-        <div class="room-code"><strong>Code:</strong> {{ room.code }}</div>
-        <div class="players-count">
-          <i class="fas fa-users"></i> {{ room.currentPlayers }} /
-          {{ room.maxPlayers }}
-        </div>
-      </div>
-
-      <div class="room-content">
-        <div class="pack-name"><strong>Pack:</strong> {{ room.packName }}</div>
-
-        <!-- Status indikator -->
-        <div class="room-status waiting">
-          <i class="fas fa-clock"></i> Waiting for players
-        </div>
-      </div>
-
-      <div class="room-footer">
-        <!-- 🔥 PROMENA: Dodat loading state za join dugme -->
-        <button
-          class="join-btn"
-          (click)="joinRoom(room.code)"
-          [disabled]="joiningRoomCode === room.code"
-        >
-          <i
-            *ngIf="joiningRoomCode !== room.code"
-            class="fas fa-sign-in-alt"
-          ></i>
-          <i
-            *ngIf="joiningRoomCode === room.code"
-            class="fas fa-spinner fa-spin"
-          ></i>
-          {{ joiningRoomCode !== room.code ? "Join Room" : "Joining..." }}
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="!packId" class="no-pack-selected">
-    <h2>Select a Question Pack First</h2>
-    <p>
+  <div *ngIf="!packId" class="text-center py-5">
+    <h2 class="h4 mb-3">Select a Question Pack First</h2>
+    <p class="mb-3">
       You need to select a question pack before you can create or join a room.
     </p>
-    <a [routerLink]="'/packs'" class="select-pack-link">
-      <i class="fas fa-arrow-left"></i> Go to Packs
+    <a [routerLink]="'/packs'" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-2"></i> Go to Packs
     </a>
   </div>
 </div>

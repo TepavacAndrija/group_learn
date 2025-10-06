@@ -1,22 +1,43 @@
-<h1>Choose a pack</h1>
-
-<div *ngIf="packs.length === 0" class="empty">
-    <p>No packs</p>
-</div>
-
-<div *ngFor="let pack of packs" class="pack-card">
-    <h3>{{ pack.name }}</h3>
-
-    <div class="questions-preview">
-    <strong>Questions:</strong>
-    <ul>
-      <li *ngFor="let question of pack.questions">
-        {{ question.text }}
-      </li>
-    </ul>
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Choose a Pack</h1>
+    <p class="text-highlight-muted">
+      Select a question pack to start a new room
+    </p>
   </div>
 
-  <button (click)="createRoom(pack.id,pack.name)">
-    Create Room with this Pack
-  </button>
+  <div *ngIf="packs.length === 0" class="text-center">
+    <div class="card bg-dark text-light p-4 d-inline-block">
+      <p class="mb-0">No packs available</p>
+    </div>
+  </div>
+
+  <div class="row g-4" *ngIf="packs.length > 0">
+    <div *ngFor="let pack of packs" class="col-md-6 col-lg-4">
+      <div class="card bg-dark text-light h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h3 class="h5 mb-3">{{ pack.name }}</h3>
+
+          <div class="mb-3 flex-grow-1">
+            <h6 class="text-primary mb-2">Questions:</h6>
+            <ul class="list-unstyled small">
+              <li
+                *ngFor="let question of pack.questions"
+                class="mb-1 text-light"
+              >
+                • {{ question.text }}
+              </li>
+            </ul>
+          </div>
+
+          <button
+            (click)="createRoom(pack.id, pack.name)"
+            class="btn btn-outline-primary mt-auto"
+          >
+            Create Room with this Pack
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

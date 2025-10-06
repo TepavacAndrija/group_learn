@@ -1,14 +1,63 @@
-<h2>Login</h2>
+<div
+  class="container d-flex justify-content-center align-items-center min-vh-100"
+>
+  <div class="col-md-6 col-lg-4">
+    <div class="card bg-dark text-light p-4 shadow">
+      <div class="text-center mb-4">
+        <h2 class="h3 fw-bold">Login</h2>
+        <p class="text-highlight-muted">Sign in to continue</p>
+      </div>
 
-<form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-  <label for="email">Email</label>
-  <input type="email" id="email" [(ngModel)]="email" name="email" required />
-  <br>
-  <label for="pass">Password</label>
-  <input type="password" id="pass" [(ngModel)]="password" name="password" required />
-  <button type="submit" [disabled]="!email || !password">Login</button>
-  <p class="error" *ngIf="error">{{ error }}</p>
-  
-</form>
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            [(ngModel)]="email"
+            name="email"
+            required
+          />
+        </div>
 
-<p>Register here <a [routerLink]="'/register'">Register</a></p>
+        <div class="mb-4">
+          <label for="pass" class="form-label">Password</label>
+          <input
+            type="password"
+            id="pass"
+            class="form-control"
+            [(ngModel)]="password"
+            name="password"
+            required
+          />
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger mb-3">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          {{ error }}
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 py-2 mb-3"
+          [disabled]="!email.trim() || !password.trim()"
+        >
+          Login
+        </button>
+      </form>
+
+      <div class="text-center">
+        <p class="mb-0">
+          Don't have an account?
+          <a
+            [routerLink]="'/register'"
+            class="text-primary text-decoration-none"
+          >
+            Register
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
