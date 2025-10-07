@@ -50,6 +50,7 @@ export class GameComponent {
   answerSubmitted = false;
   correctionSubmitted = false;
   waitingForCorrections = false;
+  submittedAnswerText: string | null = null;
 
   report: any = null;
   showReport = false;
@@ -117,6 +118,7 @@ export class GameComponent {
       case 'CORRECTION_PHASE':
         this.correctionSubmitted = false;
         this.waitingForCorrections = true;
+        this.submittedAnswerText = update.info;
         break;
 
       case 'GAME_STARTED':
@@ -131,6 +133,7 @@ export class GameComponent {
         this.correctionSubmitted = false;
         this.answerSubmitted = false;
         this.waitingForCorrections = false;
+        this.submittedAnswerText = null;
         this.loadQuestion();
         break;
 

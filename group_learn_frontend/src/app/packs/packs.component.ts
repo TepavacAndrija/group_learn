@@ -82,13 +82,11 @@ export class PacksComponent {
 
     this.http.post('http://localhost:8080/api/packs', packDto).subscribe({
       next: () => {
-        alert('Pack created successfully!');
         this.showCreateModal = false;
         this.loadPacks();
       },
       error: (err) => {
         console.error('Failed to create pack', err);
-        alert('Failed to create pack: ' + (err.message || 'Unknown error'));
       },
     });
   }

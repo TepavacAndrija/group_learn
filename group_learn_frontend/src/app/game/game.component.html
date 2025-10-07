@@ -1,5 +1,8 @@
 <div class="container py-4">
-  <div *ngIf="room && room.status === 'WAITING'" class="text-center mb-5">
+  <div
+    *ngIf="room && room.status === 'WAITING' && !gameStarted"
+    class="text-center mb-5"
+  >
     <div class="card bg-dark text-light p-4 mb-4">
       <h3 class="h4 mb-2">Game Setup</h3>
       <p class="text-highlight-muted">Waiting for host to start the game...</p>
@@ -53,6 +56,13 @@
 
   <div *ngIf="!isAnswerer && gameStarted && !gameFinished" class="mb-5">
     <div class="card bg-dark text-light p-4">
+      <div *ngIf="waitingForCorrections && submittedAnswerText" class="mb-4">
+        <h5 class="text-primary">Submitted Answer:</h5>
+        <p class="bg-secondary bg-opacity-25 p-3 rounded">
+          {{ submittedAnswerText }}
+        </p>
+      </div>
+
       <h4 class="mb-3">Suggest an Improvement</h4>
 
       <div

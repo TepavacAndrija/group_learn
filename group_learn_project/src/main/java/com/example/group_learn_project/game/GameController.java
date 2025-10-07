@@ -98,7 +98,7 @@ public class GameController {
 
         messagingTemplate.convertAndSend(
                 "/topic/game/" + room.getCode(),
-                new GameUpdateDTO("CORRECTION_PHASE", room.getCode(), room.getCurrentAnswererId(),
+                new GameUpdateDTO("CORRECTION_PHASE", room.getCode(), room.getCurrentAnswererId(),newAnswer.getText(),
                         room.getCurrentQuestionIndex()));
 
         return newAnswer;

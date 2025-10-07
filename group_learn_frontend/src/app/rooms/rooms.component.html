@@ -1,16 +1,4 @@
 <div class="container py-4">
-  <!-- <div class="d-flex align-items-center mb-3">
-    <i
-      class="fas me-2"
-      [class.fa-circle]="isConnected()"
-      [class.fa-spinner]="!isConnected()"
-      [class.fa-spin]="!isConnected()"
-      [class.text-success]="isConnected()"
-      [class.text-warning]="!isConnected()"
-    ></i>
-    {{ isConnected() ? "Connected to server" : "Connecting..." }}
-  </div> -->
-
   <div *ngIf="packId" class="mb-4">
     <h2 class="h4">Available Rooms</h2>
     <p class="text-highlight-muted">
