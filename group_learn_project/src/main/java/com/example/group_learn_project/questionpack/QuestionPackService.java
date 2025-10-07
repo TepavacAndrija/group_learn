@@ -1,8 +1,10 @@
 package com.example.group_learn_project.questionpack;
 
+import com.example.group_learn_project.question.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,16 +19,21 @@ public class QuestionPackService
         return questionPackRepository.findAll();
     }
 
-    public QuestionPack create(QuestionPack questionPack)
+    public QuestionPack create(QuestionPackDTO questionPack)
     {
+        List<Question> questions = new ArrayList<>();
         if(questionPack.getQuestions()!=null){
             questionPack.getQuestions().forEach(q->{
-                if(q.getId()==null){
-                    q.setId(UUID.randomUUID().toString());
-                }
+                Question newQuestion = new Question();
+                newQuestion.setId(UUID.randomUUID().toString());
+                newQuestion.setText(q);
+                questions.add(newQuestion);
             });
         }
-        return questionPackRepository.save(questionPack);
+        QuestionPack newQuestionPack = new QuestionPack();
+        newQuestionPack.setName(questionPack.getName());
+        newQuestionPack.setQuestions(questions);
+        return questionPackRepository.save(newQuestionPack);
     }
 
     public QuestionPack findById(String id)

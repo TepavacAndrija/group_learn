@@ -78,33 +78,6 @@ export class RoomsComponent implements OnInit, OnDestroy {
 
     this.client.activate();
   }
-  // private handleRoomUpdate(data: any) {
-  //   // Ako je stigla cela lista soba (inicijalno učitavanje)
-  //   if (Array.isArray(data)) {
-  //     this.rooms = data.filter((room) => room.status === 'WAITING');
-  //     return;
-  //   }
-
-  //   // Ako je stigla jedna soba (update)
-  //   const roomIndex = this.rooms.findIndex((r) => r.id === data.id);
-
-  //   // Soba postoji u listi - ažuriraj je
-  //   if (roomIndex !== -1) {
-  //     // Ako soba više nije WAITING statusa, ukloni je
-  //     if (data.status !== 'WAITING') {
-  //       this.rooms = this.rooms.filter((r) => r.id !== data.id);
-  //     } else {
-  //       // Ažuriraj postojeću sobu
-  //       const updatedRooms = [...this.rooms];
-  //       updatedRooms[roomIndex] = data;
-  //       this.rooms = updatedRooms;
-  //     }
-  //   }
-  //   // Nova soba - dodaj je
-  //   else if (data.status === 'WAITING') {
-  //     this.rooms = [data, ...this.rooms];
-  //   }
-  // }
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {

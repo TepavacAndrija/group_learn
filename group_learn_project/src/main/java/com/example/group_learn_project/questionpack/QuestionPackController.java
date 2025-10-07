@@ -19,7 +19,7 @@ public class QuestionPackController {
     }
 
     @PostMapping
-    public QuestionPack save(@RequestBody QuestionPack questionPack) {
+    public QuestionPack save(@RequestBody QuestionPackDTO questionPack) {
         return questionPackService.create(questionPack);
     }
 
