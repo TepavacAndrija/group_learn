@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
   standalone: true,
-  imports: [FormsModule,RouterLink,CommonModule]
+  imports: [FormsModule, RouterLink, CommonModule],
 })
 export class RegisterComponent {
   username = '';
@@ -21,14 +21,21 @@ export class RegisterComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
-    this.authService.register({ username: this.username, email: this.email, password: this.password }).subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        this.error = 'Registration failed ';
-        console.error(err);
-      }
-    });
+    this.error = '';
+    this.authService
+      .register({
+        username: this.username,
+        email: this.email,
+        password: this.password,
+      })
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          this.error =
+            err.error?.error || 'Registration failed. Please try again.';
+        },
+      });
   }
 }
