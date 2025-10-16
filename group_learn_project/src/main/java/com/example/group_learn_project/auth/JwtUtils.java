@@ -53,7 +53,7 @@ public class JwtUtils {
         }
     }
 
-    public String getIdFromToken(String token) {
+    private String getIdFromToken(String token) {
         String hostEmail = extractEmail(token);
         User user = userService.getUserByEmail(hostEmail).orElse(null);
         if (user != null) {
@@ -61,5 +61,10 @@ public class JwtUtils {
         } else {
             return null;
         }
+    }
+
+    public String getIdFromHeader(String authHeader) {
+        String token = authHeader.substring(7);
+        return getIdFromToken(token);
     }
 }

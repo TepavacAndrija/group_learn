@@ -15,11 +15,18 @@ import com.example.group_learn_project.room.Room;
 import com.example.group_learn_project.room.RoomRepository;
 import com.example.group_learn_project.room.RoomService;
 
+import jakarta.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +59,8 @@ public class GameController {
 
     @Autowired
     private GameReportService reportService;
+    @Autowired
+    private GameReportService gameReportService;
 
     @GetMapping("/report/{roomId}")
     public ResponseEntity<?> getReport(@PathVariable String roomId) {
@@ -64,8 +73,7 @@ public class GameController {
             @RequestHeader("Authorization") String authHeader) {
         try {
             String roomId = body.get("roomId");
-            String token = authHeader.substring(7);
-            String playerId = jwtUtils.getIdFromToken(token);
+            String playerId = jwtUtils.getIdFromHeader(authHeader);
 
             Room room = roomService.startGame(roomId, playerId);
 
@@ -108,8 +116,7 @@ public class GameController {
     public Room nextQuestion(@RequestBody Map<String, String> body, @RequestHeader("Authorization") String authHeader) {
         String roomId = body.get("roomId");
 
-        String token = authHeader.substring(7);
-        String playerId = jwtUtils.getIdFromToken(token);
+        String playerId = jwtUtils.getIdFromHeader(authHeader);
 
         return roomService.nextQuestion(roomId, playerId);
     }
@@ -117,8 +124,7 @@ public class GameController {
     @GetMapping("/is-answerer")
     public Map<String, Boolean> isAnswerer(@RequestParam String roomId,
             @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        String playerId = jwtUtils.getIdFromToken(token);
+        String playerId = jwtUtils.getIdFromHeader(authHeader);
 
         boolean is = roomService.isAnswerer(roomId, playerId);
         Map<String, Boolean> response = new HashMap<>();
@@ -160,6 +166,40 @@ public class GameController {
             System.out.println("GRESKA JE " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("GRESKA JE:", e.getMessage()));
         }
+    }
+
+    @GetMapping("/report/{roomId}/pdf")
+    public void downloadPdfReport(
+            @PathVariable String roomId,
+            @RequestHeader("Authorization") String authHeader,
+            HttpServletResponse response
+    ) throws Exception {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization header");
+        }
+        String playerId = jwtUtils.getIdFromHeader(authHeader);
+
+        Room room = roomService.getRoomById(roomId);
+        if (!room.getPlayerIds().contains(playerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this room");
+        }
+
+        GameReportDTO report = gameReportService.generateReport(roomId);
+
+        InputStream reportStream = getClass().getResourceAsStream("/reports/game_report.jrxml");
+        JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("roomId", report.getRoomId());
+        parameters.put("packName", report.getPackName());
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(report.getQuestions());
+
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=game_report_" + roomId + ".pdf");
+        JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
 }

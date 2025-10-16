@@ -315,4 +315,29 @@ export class GameComponent {
       },
     });
   }
+
+  downloadPdf() {
+    if (!this.room) return;
+
+    this.http
+      .get(`http://localhost:8080/api/game/report/${this.room.id}/pdf`, {
+        responseType: 'blob',
+      })
+      .subscribe({
+        next: (pdfBlob: Blob) => {
+          const url = window.URL.createObjectURL(pdfBlob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `game_report_${this.room!.id}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => {
+          console.error('Failed to download PDF', err);
+          alert(
+            'Failed to download report: ' + (err.message || 'Unknown error')
+          );
+        },
+      });
+  }
 }

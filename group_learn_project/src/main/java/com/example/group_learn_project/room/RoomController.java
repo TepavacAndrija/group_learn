@@ -34,19 +34,16 @@ public class RoomController {
 
     @PostMapping
     public Room createRoom(@RequestBody Map<String, String> body, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        String id = jwtUtils.getIdFromToken(token);
+        String id = jwtUtils.getIdFromHeader(authHeader);
         Room room = roomService.createRoom(body.get("packId"), id);
         messagingTemplate.convertAndSend("/topic/rooms", room);
 
         return room;
-        // add check if duplicate to all post mappings, questionpack too
     }
 
     @PostMapping("/join")
     public Room joinRoom(@RequestBody Room room, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        String id = jwtUtils.getIdFromToken(token);
+        String id = jwtUtils.getIdFromHeader(authHeader);
         Map<String, String> response = new HashMap<>();
         response.put("code", room.getCode());
         messagingTemplate.convertAndSend("/user/queue/room-joined", response);
